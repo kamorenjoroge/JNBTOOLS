@@ -46,17 +46,6 @@ function matches(p: Product, q: string) {
   return [p.name, p.brand, p.sku, ...p.tags].some((f) => f.toLowerCase().includes(s));
 }
 
-export async function getProducts(filters: ProductFilters = {}): Promise<Product[]> {
-  await delay();
-  let list = products;
-  if (filters.categorySlug) {
-    const cat = categories.find((c) => c.slug === filters.categorySlug);
-    list = cat ? list.filter((p) => p.categoryId === cat.id) : [];
-  }
-  if (filters.brand) list = list.filter((p) => p.brand.toLowerCase() === filters.brand!.toLowerCase());
-  if (filters.query) list = list.filter((p) => matches(p, filters.query!));
-  return filters.limit ? list.slice(0, filters.limit) : list;
-}
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   await delay(200);
@@ -100,4 +89,37 @@ export function getCategoryNameById(id: string): string {
   return categories.find((c) => c.id === id)?.name ?? "";
 }
 
+
+
+export async function getProducts(filters: ProductFilters = {}): Promise<Product[]> {
+  await delay();
+  let list = [...products]; // copy, so sorting never changes the original data
+
+  if (filters.categorySlug) {
+    const cat = categories.find((c) => c.slug === filters.categorySlug);
+    list = cat ? list.filter((p) => p.categoryId === cat.id) : [];
+  }
+  if (filters.brand) list = list.filter((p) => p.brand.toLowerCase() === filters.brand!.toLowerCase());
+  if (filters.query) list = list.filter((p) => matches(p, filters.query!));
+  if (filters.minPrice !== undefined) list = list.filter((p) => p.price >= filters.minPrice!);
+  if (filters.maxPrice !== undefined) list = list.filter((p) => p.price <= filters.maxPrice!);
+  if (filters.inStock) list = list.filter((p) => p.stockStatus !== "out_of_stock");
+
+  switch (filters.sort) {
+    case "price-asc":
+      list.sort((a, b) => a.price - b.price);
+      break;
+    case "price-desc":
+      list.sort((a, b) => b.price - a.price);
+      break;
+    case "newest":
+      list.reverse(); // mock data has no dates, so the last product in the file counts as newest
+      break;
+    case "popular":
+      list.sort((a, b) => Number(b.isPopular) - Number(a.isPopular));
+      break;
+  }
+
+  return filters.limit ? list.slice(0, filters.limit) : list;
+}
 

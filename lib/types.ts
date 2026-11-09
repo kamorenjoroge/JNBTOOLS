@@ -63,12 +63,6 @@ export interface SiteInfo {
   promo: { title: string; text: string; cta: string; categorySlug: string };
 }
 
-export interface ProductFilters {
-  categorySlug?: string;
-  brand?: string;
-  query?: string;
-  limit?: number;
-}
 export interface EnquiryItem {
   id: string;
   slug: string;
@@ -77,4 +71,16 @@ export interface EnquiryItem {
   price: number;
   image: string;
   quantity: number;
+}
+export type SortOption = "popular" | "newest" | "price-asc" | "price-desc";
+
+export interface ProductFilters {
+  categorySlug?: string;
+  brand?: string;
+  query?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  sort?: SortOption;
+  limit?: number;
 }
