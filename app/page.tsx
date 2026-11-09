@@ -13,6 +13,7 @@ import {
   getPopularProducts,
   getSiteInfo,
 } from "@/lib/api";
+import VisitUs from "./components/home/VisitUs";
 
 export default async function Home() {
   const [site, categories, featured, popular, brands] = await Promise.all([
@@ -40,6 +41,9 @@ export default async function Home() {
       <PopularProducts products={popular} whatsapp={site.whatsapp} />
       <BrandStrip brands={brands} />
       <WhyChooseUs  />
+      <section className="bg-surface">
+      <VisitUs site={site} />
+      </section>
     </>
   );
 }
